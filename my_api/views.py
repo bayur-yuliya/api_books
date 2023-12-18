@@ -154,7 +154,7 @@ def authors(request):
             try:
                 authors = Author.objects.filter(name=name)
                 if authors.exists():
-                    return JsonResponse({'authors': [{'id': a.id, 'name': a.name} for a in authors]}, status=200)
+                    return JsonResponse({'authors': [{'id': a.id, 'name': a.name, 'biography': a.biography} for a in authors]}, status=200)
                 else:
                     return JsonResponse({'massage': 'Authors with this name not found'}, status=404)
             except Author.DoesNotExist:
@@ -162,7 +162,7 @@ def authors(request):
 
         try:
             authors = Author.objects.all()
-            return JsonResponse({'authors': [{'id': a.id, 'name': a.name} for a in authors]}, status=200)
+            return JsonResponse({'authors': [{'id': a.id, 'name': a.name, 'biography': a.biography} for a in authors]}, status=200)
         except Author.DoesNotExist:
             return JsonResponse({'massage': 'Authors not found'}, status=404)
 
