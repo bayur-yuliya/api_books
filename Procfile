@@ -1,4 +1,4 @@
-web: gunicorn api_books.wsgi --bind=0.0.0.0:$PORT
+web: gunicorn api_books.wsgi
 
 # Uncomment this `release` process if you are using a database, so that Django's model
 # migrations are run as part of app deployment, using Heroku's Release Phase feature:
