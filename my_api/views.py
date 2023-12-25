@@ -2,12 +2,17 @@ import json
 
 from django.core.exceptions import ValidationError
 from django.http import JsonResponse
+from django.views import View
+from django.views.decorators.cache import cache_page
+from django.utils.decorators import method_decorator
 
 from my_api.models import Author, Book
 
 
-def create_book(request):
-    if request.method == "GET":
+class BooksView(View):
+
+    @method_decorator(cache_page(60 * 5), name='dispatch')
+    def get(self, request):
         books = Book.objects.all()
 
         title = request.GET.get("title")
@@ -26,8 +31,6 @@ def create_book(request):
                 result = JsonResponse({'books': [
                     {'id': b.id, 'title': b.title, 'author': b.author.name, 'genre': b.genre, 'created_date': b.created_date} for
                     b in books]}, status=200)
-            # else:
-            #     return JsonResponse({'massage': 'Books with this name not found'}, status=404)
         except Book.DoesNotExist:
             return JsonResponse({'massage': 'Books not found'}, status=404)
         except TypeError:
@@ -37,7 +40,7 @@ def create_book(request):
                     {'id': b.id, 'title': b.title, 'author': b.author.name, 'genre': b.genre, 'created_date': b.created_date} for
                     b in books]}, status=200)
 
-    elif request.method == "POST":
+    def post(self, request):
         try:
             book = json.loads(request.body).get('book')
         except json.JSONDecodeError:
@@ -75,23 +78,21 @@ def create_book(request):
                 {'id': books.id, 'title': books.title, 'author': books.author.name, 'genre': books.genre, 'created_date': books.created_date}]}, status=200)
         return result
 
-    else:
-        return JsonResponse({'massage': 'Incorrect method'}, status=405)
 
+class OneBookView(View):
 
-def one_book(request, book_id):
-    if request.method == "GET":
+    @method_decorator(cache_page(60 * 5), name='dispatch')
+    def get(self, request, book_id):
         try:
-
             book = Book.objects.get(id=book_id)
             return JsonResponse({'books': [
                     {'id': book.id, 'title': book.title, 'author': book.author.name, 'genre': book.genre, 'created_date': book.created_date}]}, status=200)
         except Book.DoesNotExist:
             return JsonResponse({'massage': 'Book not found'}, status=404)
 
-    elif request.method == "PUT":
+    def put(self, request, book_id):
         try:
-            book = json.loads(request.body).get('book')
+                    book = json.loads(request.body).get('book')
         except json.JSONDecodeError:
             return JsonResponse({'massage': 'Request body must by JSON'}, status=400)
 
@@ -135,7 +136,7 @@ def one_book(request, book_id):
         return JsonResponse({'books': [
                     {'id': book.id, 'title': book.title, 'author': book.author.name, 'genre': book.genre, 'created_date': book.created_date}]}, status=200)
 
-    elif request.method == "DELETE":
+    def delete(self, request, book_id):
         try:
             book = Book.objects.get(id=book_id)
             book.delete()
@@ -143,12 +144,11 @@ def one_book(request, book_id):
         except Book.DoesNotExist:
             return JsonResponse({'massage': 'Book not found'}, status=404)
 
-    else:
-        return JsonResponse({'massage': 'Incorrect method'}, status=405)
 
+class AuthorsView(View):
 
-def authors(request):
-    if request.method == "GET":
+    @method_decorator(cache_page(60 * 5), name='dispatch')
+    def get(self, request):
         name = request.GET.get("name")
         if name:
             try:
@@ -166,16 +166,12 @@ def authors(request):
         except Author.DoesNotExist:
             return JsonResponse({'massage': 'Authors not found'}, status=404)
 
-    else:
-        return JsonResponse({'massage': 'Incorrect method'}, status=405)
 
-
-def one_author(request, author_id):
-    if request.method == "GET":
+class OneAuthorView(View):
+    @method_decorator(cache_page(60 * 5), name='dispatch')
+    def get(self, request, author_id):
         try:
             authors = Author.objects.get(id=author_id)
             return JsonResponse({'authors': [{'id': authors.id, 'name': authors.name, 'biography': authors.biography}]}, status=200)
         except Author.DoesNotExist:
             return JsonResponse({'massage': 'Author not found'}, status=404)
-    else:
-        return JsonResponse({'massage': 'Incorrect method'}, status=405)

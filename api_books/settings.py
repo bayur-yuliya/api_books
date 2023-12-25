@@ -53,6 +53,7 @@ else:
 
 INSTALLED_APPS = [
     "whitenoise.runserver_nostatic",
+    'rest_framework',
     'my_api.apps.MyApiConfig',
     'django.contrib.admin',
     'django.contrib.auth',
@@ -109,20 +110,32 @@ if IS_HEROKU_APP:
             ssl_require=True,
         ),
     }
-else:
+elif os.getenv("DOCKERIZED", False):
+    try:
+        POSTGRES_PASSWORD = open(os.getenv("POSTGRES_PASSWORD_FILE", "")).read().strip()
+    except FileNotFoundError:
+        POSTGRES_PASSWORD = "for_tests"
     # When running locally in development or in CI, a sqlite database file will be used instead
     # to simplify initial setup. Longer term it's recommended to use Postgres locally too.
     DATABASES = {
         "default": {
             "ENGINE": "django.db.backends.postgresql",
-            "NAME": "postgres",
+            "NAME": os.getenv("POSTGRES_DB", "mock-db"),
             "USER": "postgres",
-            "PASSWORD": "password",
-            "HOST": "localhost",
+            "PASSWORD": POSTGRES_PASSWORD,
+            "HOST": "db",
             "PORT": "5432",
         }
     }
-
+else:
+    # When running locally in development or in CI, a sqlite database file will be used instead
+    # to simplify initial setup. Longer term it's recommended to use Postgres locally too.
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.sqlite3",
+            "NAME": BASE_DIR / "db.sqlite3",
+        }
+    }
 
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
@@ -165,3 +178,13 @@ STATIC_URL = "static/"
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+CACHES = {
+    'default': {
+        'BACKEND': 'django_redis.cache.RedisCache',
+        'LOCATION': 'redis://redis:6379',
+        'OPTIONS': {
+            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+        }
+    }
+}
