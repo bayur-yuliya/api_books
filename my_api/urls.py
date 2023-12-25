@@ -1,10 +1,10 @@
 from django.urls import path
 
-from my_api import views
+from my_api.views import BooksView, OneAuthorView, OneBookView, AuthorsView
 
 urlpatterns = [
-    path('books/', views.create_book, name='books'),
-    path('books/<int:book_id>', views.one_book, name='one_book'),
-    path('authors/', views.authors, name='authors'),
-    path('authors/<int:author_id>', views.one_author, name='one_author'),
+    path('books/', BooksView.as_view(), name='books'),
+    path('books/<int:book_id>', OneBookView.as_view(), name='one_book'),
+    path('authors/', AuthorsView.as_view(), name='authors'),
+    path('authors/<int:author_id>', OneAuthorView.as_view(), name='one_author'),
 ]

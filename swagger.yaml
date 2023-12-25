@@ -1,0 +1,321 @@
+openapi: 3.0.0
+info:
+  title: API-books
+  version: 1.0.0
+  description: bookstore_api
+servers:
+  - url: http://127.0.0.1:8000/api/
+
+paths:
+  /books:
+    get:
+      summary: Get books
+      tags:
+        - Books
+      parameters:
+        - name: title
+          in: query
+          description: filter books by title
+          schema:
+            type: string
+        - name: author
+          in: query
+          description: filter books by author
+          schema:
+            type: string
+        - name: genre
+          in: query
+          description: filter books by genre
+          schema:
+            type: string
+        - name: created_date
+          in: query
+          description: filter books by created_date
+          schema:
+            type: string
+            format: date
+      responses:
+        '200':
+          description: A successful response
+          content:
+            application/json:
+              example:
+                - id: 1
+                  title: test_title
+                  author: test_author_name
+                  genre: test_genre
+                  created_date: 2007-10-10
+                - id: 2
+                  title: test_title1
+                  author: test_author_name1
+                  genre: test_genre1
+                  created_date: 2011-11-11
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Title, author, genre must be string
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Book not found
+        '405':
+          description: Incorrect method
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Incorrect method
+        '500':
+          description: Internal Server Error
+    post:
+      description: Post book
+      tags:
+        - Books
+      requestBody:
+        required: True
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - title
+                  author
+                  genre
+                  created_date
+              properties:
+                title:
+                  type: string
+                author:
+                  type: string
+                genre:
+                  type: string
+                created_date:
+                  type: string
+                  format: date
+      responses:
+        '200':
+          description: A successful create book
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        '500':
+          description: Internal Server Error
+  /books/{book_id}:
+    get:
+      description: Get book by book id
+      tags:
+        - Book by book id
+      parameters:
+        - name: book_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Successfully returned the book
+          content:
+            application/json:
+              example:
+                - id: 1
+                  title: test_title
+                  author: test_author_name
+                  genre: test_genre
+                  created_date: 2007-10-10
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Request body must by JSON
+        '405':
+          description: Incorrect method
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Incorrect method
+    put:
+      description: Put book by book id
+      tags:
+        - Book by book id
+      parameters:
+        - name: book_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: True
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                author:
+                  type: string
+                genre:
+                  type: string
+                created_date:
+                  type: string
+                  format: date
+      responses:
+        '200':
+          description: A successful update book
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Title, author, genre must be string
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Book not found
+        '500':
+          description: Internal Server Error
+    delete:
+      description: Delete book by book id
+      tags:
+        - Book by book id
+      parameters:
+        - name: book_id
+          in: path
+          required: true
+          schema:
+            type:
+              integer
+      responses:
+        '200':
+          description: Successful delete book
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Book not found
+        '405':
+          description: Incorrect method
+        '500':
+          description: Internal Server Error
+  /authors:
+    get:
+      summary: Get authors
+      tags:
+        - Authors
+      parameters:
+        - name: name
+          in: query
+          description: filter authors by name
+          schema:
+            type: string
+      responses:
+        '200':
+          description: A successful response
+          content:
+            application/json:
+              example:
+                - id: 1
+                  name: test_name
+                  biography: test_author_biography
+                - id: 2
+                  name: test_name1
+                  biography: test_author_biography1
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Authors not found
+        '500':
+          description: Internal Server Error
+  /authors/{author_id}:
+    get:
+      description: Get author by author id
+      tags:
+        - Author by author id
+      parameters:
+        - name: author_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Successfully returned the author
+          content:
+            application/json:
+              example:
+                - id: 1
+                  name: test_name
+                  biography: test_author_biography
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Request body must by JSON
+        '405':
+          description: Incorrect method
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Incorrect method
+        '500':
+          description: Internal Server Error
