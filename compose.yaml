@@ -3,7 +3,7 @@ services:
     secrets:
       - db-password
     environment:
-      - CELERY_BROKER_URL='redis://redis:6379/0'
+      - CELERY_BROKER_URL=amqp://guest:guest@broker:5672/
       - POSTGRES_PASSWORD_FILE=/run/secrets/db-password
       - POSTGRES_DB=example
     depends_on:
@@ -17,7 +17,7 @@ services:
     secrets:
       - db-password
     environment:
-      - CELERY_BROKER_URL='redis://redis:6379/0'
+      - CELERY_BROKER_URL=amqp://guest:guest@broker:5672/
       - POSTGRES_PASSWORD_FILE=/run/secrets/db-password
       - POSTGRES_DB=example
     depends_on:
